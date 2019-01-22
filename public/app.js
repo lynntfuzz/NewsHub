@@ -3,18 +3,40 @@ $.getJSON("/articles", function(data) {
   // For each one
   for (var i = 0; i < data.length; i++) {
     // Display the apropos information on the page
-    $("#articles").append("<div class=\"front-card\"><p data-id='" + data[i]._id + "'> <strong>" + data[i].headline + "</strong><br /> " + data[i].summary + "<br />  <a href=" + data[i].link+ ">" + data[i].link + "</a></p></div>");
+
+    var div = $("<div/>");
+    div.addClass("card");
+    div.attr("id", "news-card");
+    div.attr("data-id", data[i]._id);
+    div.css("width", "18rem;");
+   
+    var img = $("<img/>");
+    img.addClass("card-img-top");
+    img.attr("src", data[i].imagelink);
+    img.attr("href", data[i].imagelink);
+    div.append(img);
+
+    var card_body = $("<div/>");
+    card_body.css("width", "18rem;");
+    card_body.append("<h2 class=\"card-title\">" + data[i].headline + "</h2>");
+    card_body.append("<p class=\"card-text\">" + data[i].summary + "</p>");
+    card_body.append("<a href=" + data[i].link + ">Link to Article</a>");
+    card_body.append("<button type=\"button\" class=\"btn btn-primary\" data-id=" + data[i]._id + ">Comment</input>");
+    div.append(card_body);
+
+    $("#articles").append(div);
+
+  //$("#articles").append("<div class=\"front-card\"><p data-id='" + data[i]._id + "'> <strong>" + data[i].headline + "</strong><br /> " + data[i].summary + "<br />  <a href=" + data[i].link+ ">" + data[i].link + "</a></p></div>");
   }
 });
 
-
-// Whenever someone clicks a p tag
-$(document).on("click", ".front-card", function() {
+// whenever someone clicks on a news-card
+$(document).on("click", "#news-card", function() {
   console.log("Clicky Click");
   // Empty the Comments from the Comment section
   $("#Comments").empty();
   // Save the id from the p tag
-  var thisId = $(this).find("p").attr("data-id");
+  var thisId = $(this).attr("data-id");
   console.log("id = " + thisId);
   // Now make an ajax call for the Article
   $.ajax({
@@ -23,22 +45,36 @@ $(document).on("click", ".front-card", function() {
   })
     // With that done, add the Comment information to the page
     .then(function(data) {
+      console.log("Got Article after clicky click.");
+      console.log(data);
+      $("#comments").empty();
+
       // The headline of the article
-      $("#Comments").append("<h2>" + data.headline + "</h2>");
+      $("#comments").append("<h2>" + data.headline + "</h2>");
+      console.log("comments = " + data.comments);
+      for (var i = 0; i < data.comments.length; i++) {
+        $("#comments").append("<h3>" + data.comments[i].headline + "</h3>");
+        $("#comments").append("<h5>" + data.comments[i].body + "</h5>");
+        $("#comments").append("<h7>Author: " + data.comments[i].author + "</h7>");
+      }
+   
       // An input to enter a new headline
-      $("#Comments").append("<input id='headlineinput' name='headline' >");
+      $("#comments").append("<input id='headlineinput' name='headline' />");
+      
       // A textarea to add a new Comment body
-      $("#Comments").append("<textarea id='bodyinput' name='body'></textarea>");
+      $("#comments").append("<textarea id='bodyinput' name='body'></textarea>");
+      $("#comments").append("<input id='authorinput' name='author' />");
       // A button to submit a new Comment, with the id of the article saved to it
-      $("#Comments").append("<button data-id='" + data._id + "' id='saveComment'>Save Comment</button>");
+      $("#comments").append("<button data-id='" + data._id + "' id='saveComment'>Save Comment</button>");
 
       // If there's a Comment in the article
-      if (data.Comment) {
-        // Place the headline of the Comment in the headline input
-        $("#headlineinput").val(data.Comment.headline);
-        // Place the body of the Comment in the body textarea
-        $("#bodyinput").val(data.Comment.body);
-      }
+      // if (data.Comment) {
+      //   // Place the headline of the Comment in the headline input
+      //   $("#headlineinput").val(data.Comment.headline);
+      //   $("#authorinput").val(data.Comment.author);
+      //   // Place the body of the Comment in the body textarea
+      //   $("#bodyinput").val(data.Comment.body);
+      // }
     });
 });
 
@@ -46,7 +82,7 @@ $(document).on("click", ".front-card", function() {
 $(document).on("click", "#saveComment", function() {
   // Grab the id associated with the article from the submit button
   var thisId = $(this).attr("data-id");
-
+  console.log("article thisId= " + thisId);
   // Run a POST request to change the Comment, using what's entered in the inputs
   $.ajax({
     method: "POST",
@@ -55,7 +91,9 @@ $(document).on("click", "#saveComment", function() {
       // Value taken from headline input
       headline: $("#headlineinput").val(),
       // Value taken from Comment textarea
-      body: $("#bodyinput").val()
+      body: $("#bodyinput").val(),
+      author: $("#authorinput").val(),
+      article: thisId
     }
   })
     // With that done
@@ -63,7 +101,7 @@ $(document).on("click", "#saveComment", function() {
       // Log the response
       console.log(data);
       // Empty the Comments section
-      $("#Comments").empty();
+      $("#comments").empty();
     });
 
   // Also, remove the values entered in the input and textarea for Comment entry
