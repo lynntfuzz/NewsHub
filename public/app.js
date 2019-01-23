@@ -47,15 +47,43 @@ $(document).on("click", "#news-card", function() {
     .then(function(data) {
       console.log("Got Article after clicky click.");
       console.log(data);
+
+
+
       $("#comments").empty();
+
+      
 
       // The headline of the article
       $("#comments").append("<h2>" + data.headline + "</h2>");
-      console.log("comments = " + data.comments);
+      
       for (var i = 0; i < data.comments.length; i++) {
-        $("#comments").append("<h3>" + data.comments[i].headline + "</h3>");
-        $("#comments").append("<h5>" + data.comments[i].body + "</h5>");
-        $("#comments").append("<h7>Author: " + data.comments[i].author + "</h7>");
+        var comment_div = $("<div/>");
+        comment_div.addClass("card");
+        comment_div.attr("id", "comment-card");
+        comment_div.attr("data-id", data.comments[i]._id);
+        comment_div.css("width", "18rem;");
+
+        var headline = $("<h3/>");
+        headline.text(data.comments[i].headline);
+        comment_div.append(headline);
+
+        var body =  $("<h5/>");
+        body.text(data.comments[i].body);
+        comment_div.append(body);
+
+        var author =  $("<h7/>");
+        body.text(data.comments[i].author);
+        comment_div.append(author);
+
+       
+        comment_div.append("<button data-id='" + data.comments[i]._id + "' id='deleteComment'>Delete Comment</button>");
+       
+        $("#comments").append(comment_div);
+
+        // $("#comments").append("<h3>" + data.comments[i].headline + "</h3>");
+        // $("#comments").append("<h5>" + data.comments[i].body + "</h5>");
+        // $("#comments").append("<h7>Author: " + data.comments[i].author + "</h7>");
       }
    
       // An input to enter a new headline
@@ -107,4 +135,33 @@ $(document).on("click", "#saveComment", function() {
   // Also, remove the values entered in the input and textarea for Comment entry
   $("#headlineinput").val("");
   $("#bodyinput").val("");
+});
+
+// When you click the deleteComment button
+$(document).on("click", "#deleteComment", function() {
+  // Grab the id associated with the article from the submit button
+  var thisId = $(this).attr("data-id");
+  console.log("comment to delete id= " + thisId);
+
+  //Run a DELETE request to delete the Comment, using the id
+  $.ajax({
+    method: "DELETE",
+    url: "/comment/" + thisId
+   
+  })
+    // With that done
+    .then(function(data) {
+      // Log the response
+      console.log(data);
+
+      // remove that comment
+      var hopefully_the_rightdiv = $("div[data-id= " + thisId + "]");
+      console.log(hopefully_the_rightdiv);
+      hopefully_the_rightdiv.remove();
+      
+      //$("div[data-id= " + thisId + "]").remove();
+
+    });
+
+
 });

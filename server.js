@@ -141,6 +141,22 @@ app.post("/articles/:id", function(req, res) {
     });
 });
 
+app.delete("/comment/:id", function(req, res) {
+  
+  // Create a new comment and pass the req.body to the entry
+  db.Comment.deleteOne(req.body)
+    .then(function(dbComment) {
+      return db.Article.findOneAndUpdate({ _id: req.params.id },{ $pop: { comments: [dbComment._id] } }, { new: true });
+    })
+    .then(function(dbArticle) {
+      // If we were able to successfully update an Article, send it back to the client
+      res.json(dbArticle);
+    })
+    .catch(function(err) {
+      // If an error occurred, send it to the client
+      res.json(err);
+    });
+});
 
 // Start the server
 app.listen(PORT, function() {
