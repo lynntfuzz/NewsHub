@@ -45,64 +45,9 @@ $(document).on("click", "#news-card", function() {
   })
     // With that done, add the Comment information to the page
     .then(function(data) {
-      console.log("Got Article after clicky click.");
-      console.log(data);
-
-
-
-      $("#comments").empty();
-
+      setCurrentArticle(data);
       
-
-      // The headline of the article
-      $("#comments").append("<h2>" + data.headline + "</h2>");
-      
-      for (var i = 0; i < data.comments.length; i++) {
-        var comment_div = $("<div/>");
-        comment_div.addClass("card");
-        comment_div.attr("id", "comment-card");
-        comment_div.attr("data-id", data.comments[i]._id);
-        comment_div.css("width", "18rem;");
-
-        var headline = $("<h3/>");
-        headline.text(data.comments[i].headline);
-        comment_div.append(headline);
-
-        var body =  $("<h5/>");
-        body.text(data.comments[i].body);
-        comment_div.append(body);
-
-        var author =  $("<h7/>");
-        body.text(data.comments[i].author);
-        comment_div.append(author);
-
-       
-        comment_div.append("<button data-id='" + data.comments[i]._id + "' id='deleteComment'>Delete Comment</button>");
-       
-        $("#comments").append(comment_div);
-
-        // $("#comments").append("<h3>" + data.comments[i].headline + "</h3>");
-        // $("#comments").append("<h5>" + data.comments[i].body + "</h5>");
-        // $("#comments").append("<h7>Author: " + data.comments[i].author + "</h7>");
-      }
    
-      // An input to enter a new headline
-      $("#comments").append("<input id='headlineinput' name='headline' />");
-      
-      // A textarea to add a new Comment body
-      $("#comments").append("<textarea id='bodyinput' name='body'></textarea>");
-      $("#comments").append("<input id='authorinput' name='author' />");
-      // A button to submit a new Comment, with the id of the article saved to it
-      $("#comments").append("<button data-id='" + data._id + "' id='saveComment'>Save Comment</button>");
-
-      // If there's a Comment in the article
-      // if (data.Comment) {
-      //   // Place the headline of the Comment in the headline input
-      //   $("#headlineinput").val(data.Comment.headline);
-      //   $("#authorinput").val(data.Comment.author);
-      //   // Place the body of the Comment in the body textarea
-      //   $("#bodyinput").val(data.Comment.body);
-      // }
     });
 });
 
@@ -127,14 +72,15 @@ $(document).on("click", "#saveComment", function() {
     // With that done
     .then(function(data) {
       // Log the response
-      console.log(data);
-      // Empty the Comments section
-      $("#comments").empty();
+      // console.log("added comment data ---> " + data[0]);
+      // loadComment(data);
+      setCurrentArticle(data);
     });
 
   // Also, remove the values entered in the input and textarea for Comment entry
   $("#headlineinput").val("");
   $("#bodyinput").val("");
+  $("#authorinput").val("");
 });
 
 // When you click the deleteComment button
@@ -154,14 +100,76 @@ $(document).on("click", "#deleteComment", function() {
       // Log the response
       console.log(data);
 
-      // remove that comment
+      // remove that comment or should I trigger a whole reload?????
       var hopefully_the_rightdiv = $("div[data-id= " + thisId + "]");
       console.log(hopefully_the_rightdiv);
       hopefully_the_rightdiv.remove();
       
-      //$("div[data-id= " + thisId + "]").remove();
-
     });
 
 
 });
+
+function setCurrentArticle(article) {
+  
+    console.log("Got Article after clicky click.");
+      console.log(article);
+
+      $("#comments").empty();
+
+      // The headline of the article
+      $("#comments").append("<h2>" + article.headline + "</h2>");
+      
+      var comment_section = $("<div>");
+      comment_section.attr("id", "comment_section");
+      comment_section.append("<h2>Comments</h2>");
+      $("#comments").append(comment_section);
+
+      console.log("article -> " + article);
+      console.log("comments (should be populated) -> " + article.comments);
+      console.log("there should be " + article.comments.length + " comments.");
+      for (var i = 0; i < article.comments.length; i++) {
+        loadComment(article.comments[i]);
+      }
+      
+
+      $("#comments").append("<h3>Add Comment:</h3>");
+   
+      // An input to enter a new headline
+      $("#comments").append("<label for='headlineinput'>Title:</label>");
+      $("#comments").append("<input id='headlineinput' name='headline' />");
+      
+      // A textarea to add a new Comment body
+      
+      $("#comments").append("<label for='bodyinput'>Comment:</label>");
+      $("#comments").append("<textarea id='bodyinput' name='body'></textarea>");
+      $("#comments").append("<label for='authorinput'>Author Name:</label>");
+      $("#comments").append("<input id='authorinput' name='author' />");
+      // A button to submit a new Comment, with the id of the article saved to it
+      $("#comments").append("<button data-id='" + article._id + "' id='saveComment'>Save Comment</button>");
+     
+}
+
+function loadComment(comment) {
+  var comment_div = $("<div/>");
+  comment_div.addClass("card");
+  comment_div.attr("id", "comment-card");
+  comment_div.attr("data-id", comment._id);
+  comment_div.css("width", "18rem;");
+
+  var headline = $("<h3/>");
+  headline.text(comment.headline);
+  comment_div.append(headline);
+
+  var body =  $("<h5/>");
+  body.text(comment.body);
+  comment_div.append(body);
+
+  var author =  $("<h7/>");
+  body.text(comment.author);
+  comment_div.append(author);
+ 
+  comment_div.append("<button data-id='" + comment._id + "' id='deleteComment'>Delete Comment</button>");
+ 
+  $("#comment_section").append(comment_div);
+}

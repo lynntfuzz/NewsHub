@@ -127,16 +127,18 @@ app.get("/articles/:id", function(req, res) {
     });
 });
 
-// Route for saving/updating an Article's associated comments
+// Route for saving/updating an Article's associated comments/
+// id = id of the Article
 app.post("/articles/:id", function(req, res) {
   
   // Create a new comment and pass the req.body to the entry
   db.Comment.create(req.body)
     .then(function(dbComment) {
-      return db.Article.findOneAndUpdate({ _id: req.params.id },{ $push: { comments: [dbComment._id] } }, { new: true });
+      return db.Article.findOneAndUpdate({ _id: req.params.id },{ $push: { comments: [dbComment._id] } }, { new: true }).populate("comments");
     })
     .then(function(dbArticle) {
       // If we were able to successfully update an Article, send it back to the client
+      console.log(dbArticle);
       res.json(dbArticle);
     })
     .catch(function(err) {
@@ -150,7 +152,7 @@ app.delete("/comment/:id", function(req, res) {
   // Create a new comment and pass the req.body to the entry
   db.Comment.deleteOne(req.body)
     .then(function(dbComment) {
-      return db.Article.findOneAndUpdate({ _id: req.params.id },{ $pop: { comments: [dbComment._id] } }, { new: true });
+      return db.Article.findOneAndUpdate({ _id: req.params.id },{ $pull: { comments: [dbComment._id] } }, { new: true });
     })
     .then(function(dbArticle) {
       // If we were able to successfully update an Article, send it back to the client
