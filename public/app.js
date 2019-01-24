@@ -9,20 +9,26 @@ $.getJSON("/articles", function(data) {
     div.attr("id", "news-card");
     div.attr("data-id", data[i]._id);
     div.css("width", "18rem;");
-   
+
     var img = $("<img/>");
     img.addClass("card-img-top");
     img.attr("src", data[i].imagelink);
     img.attr("href", data[i].imagelink);
     div.append(img);
-
+   
     var card_body = $("<div/>");
-    card_body.css("width", "18rem;");
-    card_body.append("<h2 class=\"card-title\">" + data[i].headline + "</h2>");
-    card_body.append("<p class=\"card-text\">" + data[i].summary + "</p>");
-    card_body.append("<a href=" + data[i].link + ">Link to Article</a>");
-    card_body.append("<button type=\"button\" class=\"btn btn-primary\" data-id=" + data[i]._id + ">Comment</input>");
+    card_body.addClass("card-body");
     div.append(card_body);
+
+   
+
+    var card_text = $("<div/>");
+    card_text.css("width", "18rem;");
+    card_text.append("<h2 class=\"card-title\">" + data[i].headline + "</h2>");
+    card_text.append("<p class=\"card-text\">" + data[i].summary + "</p>");
+    card_text.append("<a href=" + data[i].link + ">Link to Article</a>");
+    card_text.append("<button type=\"button\" class=\"btn btn-primary\" data-id=" + data[i]._id + ">Comment</input>");
+    card_body.append(card_text);
 
     $("#articles").append(div);
 
