@@ -162,11 +162,12 @@ function loadComment(comment) {
   comment_div.append(headline);
 
   var body =  $("<h5/>");
+  console.log("===> comment body = " + comment.body);
   body.text(comment.body);
   comment_div.append(body);
 
   var author =  $("<h7/>");
-  body.text(comment.author);
+  author.text(comment.author);
   comment_div.append(author);
  
   comment_div.append("<button data-id='" + comment._id + "' id='deleteComment'>Delete Comment</button>");
